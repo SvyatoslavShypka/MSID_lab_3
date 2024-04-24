@@ -47,11 +47,41 @@ def get_polynomial_form(polynomial_degree: int) -> np.ndarray:
     :return: a array with degrees of polynomial
     """
     ...
+    result = []
+    for i in range(polynomial_degree + 1):
+        result.append([i])
+    return np.array(result)
 
 
 def print_polynomial(theta: np.ndarray, precission: int = 3) -> str:
     """Return string representation of polynomial."""
     ...
+    # np.round()
+    # np.array([[1.86548519e+00], [0.33807518e-02], [-1.04156655e-05]]), 3
+    # np.array([[4.99949649e+00], [1.57674472e-02], [6.45111445e-05],
+    #     [-5.99332140e-07], [9.72509213e-10]]), 4
+    # np.array([[4.22887997e+00], [6.80849677e-02], [-1.01662102e-03],
+    #     [8.48670958e-06], [-3.16066573e-08], [4.12017807e-11]]), 5
+    result = ''
+    # result = "1.865*x^0 + 0.003*x^1 + -0.0*x^2"
+    # result = "43.51696*x^0 + 0.0013*x^1 + -0.0*x^2 + 0.0*x^3 + -0.0*x^4 + -0.0*x^5"
+    # result = "19.6*x^0 + 0.2*x^1"
+    result = ""
+    for i in range(len(theta)):
+        print("precision: ", precission)
+        print("liczba: ", theta[i][0])
+        formatted_number = format(theta[i][0], f".{precission}f").rstrip("0")
+        print(formatted_number)
+        if formatted_number[-1] == ".":
+            formatted_number += "0"
+        print(formatted_number)
+        # result += f"{theta[i][0]:.{precission}.rstrip('0')f}*x^{i}"
+        result += f"{formatted_number}*x^{i}"
+        if i < len(theta) - 1:
+            result += " + "
+    return result
+    print("TEST: ", polynomial_str)
+    return polynomial_str
 
 
 def least_squares_solution(
@@ -67,6 +97,9 @@ def least_squares_solution(
     :return: theta matrix of polynomial, shape = (1, polynomial_degree + 1)
     """
     ...
+    A = np.vander(X, polynomial_degree + 1)
+    theta, residuals, _, _ = np.linalg.lstsq(A, Y, rcond=None)
+    return theta.reshape(1, -1)
 
 
 def generalised_linear_model(X: np.ndarray, T: np.ndarray) -> np.ndarray:
@@ -77,7 +110,8 @@ def generalised_linear_model(X: np.ndarray, T: np.ndarray) -> np.ndarray:
     :param T: theta matrix of polynomial, shape = (1, polynomial_degree + 1)
     :return: regressed values, shape = (N, )
     """
-    return sum([coeff * X ** degree for degree, coeff in enumerate(T)])
+    # return sum([coeff * X ** degree for degree, coeff in enumerate(T)])
+    return np.sum(T * (X ** np.arange(T.shape[1])), axis=1)
 
 
 def visualise_LSS_method(X: np.ndarray, Y: np.ndarray, T: np.ndarray):
